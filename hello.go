@@ -28,6 +28,8 @@ func main() {
 
 	exibeNomes()
 
+	leSitesDoArquivo()
+
 	for {
 		falaOi()
 		mostraMenu()
@@ -55,7 +57,9 @@ func devolveNomeEIdade() (string, int) {
 
 func iniciarMonitoramento() {
 	fmt.Println("Monitorando...")
-	sites := []string{"https://www.alura.com.br", "https://www.google.com.br", "https://www.b3.com.br"}
+
+	//sites := []string{"https://www.alura.com.br", "https://www.google.com.br", "https://www.b3.com.br"}
+	sites := leSitesDoArquivo()
 
 	fmt.Println(sites)
 
@@ -73,8 +77,24 @@ func iniciarMonitoramento() {
 	}
 }
 
+func leSitesDoArquivo() []string {
+	file, err := os.Open("sites.txt")
+
+	if err != nil {
+		fmt.Println("Ocorreu um erro:", err)
+	}
+
+	fmt.Println(file)
+	var sites []string
+	return sites
+}
+
 func testaSite(site string) {
-	resp, _ := http.Get(site)
+	resp, err := http.Get(site)
+
+	if err != nil {
+		fmt.Println("Ocorreu um erro:", err)
+	}
 
 	if resp.StatusCode == 200 {
 		fmt.Println("Deu bom. O site ", site, "carregou")
