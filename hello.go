@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -42,7 +43,7 @@ func main() {
 		case 1:
 			iniciarMonitoramento()
 		case 2:
-			fmt.Println("Exibindo logs...")
+			imprimeLogs()
 		case 0:
 			fmt.Println("Tô saindo...")
 			os.Exit(0)
@@ -100,6 +101,7 @@ func leSitesDoArquivo() []string {
 		}
 	}
 
+	_ = file.Close()
 	fmt.Println(sites)
 	return sites
 }
@@ -113,9 +115,35 @@ func testaSite(site string) {
 
 	if resp.StatusCode == 200 {
 		fmt.Println("Deu bom. O site ", site, "carregou")
+		registraLog(site, true)
 	} else {
 		fmt.Println("O site ", site, "está com problemas e retornou o status", resp.StatusCode)
+		registraLog(site, false)
 	}
+}
+
+func registraLog(site string, b bool) {
+	arquivo, err := os.OpenFile("log.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	_, _ = arquivo.WriteString(time.Now().Format("2006/01/02 15:04:05 ") + site + " - online: " + strconv.FormatBool(b) + "\n")
+
+	_ = arquivo.Close()
+	fmt.Println(arquivo)
+}
+
+func imprimeLogs() {
+
+	arquivo, err := os.ReadFile("log.txt")
+
+	if err != nil {
+		fmt.Println("Ocorreu um erro:", err)
+	}
+
+	fmt.Println(string(arquivo))
 }
 
 func exibeNomes() {
